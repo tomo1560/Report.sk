@@ -1,0 +1,88 @@
+#Report.sk
+#Author:tomo1560
+
+options:
+    servername: サバイバル    #送信されたサーバ
+    daylimitreport: 5    #1日に送信できる一人あたりの最大レポート数
+#Discord
+    discordbotname: ""
+    discordtoken: ""
+    discordchannelID: ""
+    discordID: ""    #"userID,userID,…"
+#Twitter
+    consumer_key: ""
+    consumer_secret: ""
+    access_token: ""    
+    secret_token: ""
+    twitterID: ""    #"ScreenID,ScreenID,…"
+
+on skript load:
+    set {twitter::*} to split {@twitterID} by ","
+    set {discord::*} to split {@discordID} by ","
+    twitter debug connect with consumer key {@consumer_key}, consumer secret {@consumer_secret}, access token {@access_token} and secret token {@secret_token}
+    login to user with token {@discordtoken} with name {@discordbotname}
+command /report <string> [<string>]:
+    description: 管理者に報告（レポート）を行います
+    usage: /report [プレイヤー名(option)] <報告（レポート）>
+    permission: report.use
+    executable by: players
+    trigger:
+        if {reportedcounter::%player%} is {@daylimitreport}:
+            message "本日のレポート最大送信数に達しました．"
+        else:
+            if arg 2 is set:
+                set {_reportedplayer} to arg 1
+                set {_report} to arg 2
+            else:
+                set {_reportedplayer} to "none"
+                set {_report} to arg-1
+            set {_message} to "報告サーバ : {@servername}%newline%報告日時 : %now%%newline%報告プレイヤー名 : %the player%%newline%報告プレイヤーUUID : %UUID of player%%newline%報告プレイヤー位置 : %newline%- ワールド : %the player's world%%newline%- 座標 : %newline%Z : %player's Z-coordinate%%newline%Y : %player's Y-coordinate%%newline%X : %player's X-coordinate%%newline%被報告プレイヤー名 : %{_reportedplayer}%%newline%メッセージ : %{_report}%"
+            set {_mcmessage::1} to "報告サーバ : {@servername}"
+            set {_mcmessage::2} to "報告日時 : %now%"
+            set {_mcmessage::3} to "報告プレイヤー名 : %the player%"
+            set {_mcmessage::4} to "報告プレイヤーUUID : %UUID of player%"
+            set {_mcmessage::5} to "報告プレイヤー位置 : "
+            set {_mcmessage::6} to "- ワールド : %the player's world%"
+            set {_mcmessage::7} to "- 座標 : "
+            set {_mcmessage::8} to "Z : %player's Z-coordinate%"
+            set {_mcmessage::9} to "Y : %player's Y-coordinate%"
+            set {_mcmessage::10} to "X : %player's X-coordinate%"
+            set {_mcmessage::11} to "被報告プレイヤー名 : %{_reportedplayer}%"
+            set {_mcmessage::12} to "メッセージ : %{_report}%"
+            send message {_message} to channel {@discordchannelID} as {@discordbotname}
+            #loop {discord::*}:
+            #    send discord message of "{_message}" to loop-value with {@discordbotname}
+            loop {twitter::*}:
+                tweet "dm %loop-value% %{_message}%"
+            loop all players:
+                if loop-player has permission "report.view":
+                    message "======================[Report]======================" to loop-player
+                    loop {_mcmessage::*}:
+                        message "%{_mcmessage::%loop-index%}%" to loop-player
+                    message "====================================================" to loop-player
+            add 1 to {reportedcounter::%player%}
+            message "[Report] 報告ありがとうございます．確認次第処置を致します．"
+every minute in "world":
+    if "%now%" contains "00:00":
+        clear {reportedcounter::*}
+command /resetcount:
+    permission: report.countreset
+    trigger:
+        clear {reportedcounter::*}
+command /viewcount:
+    permission: report.countview
+    trigger:
+        message "あなたは本日%{reportedcounter::%player%}%回報告しました"
+command /checkuser:
+    permission: report.accountview
+    trigger:
+        message "Discord : %{discord::*}% Twitter: %{twitter::*}%"
+command /reloadreceiveuser:
+    permission: report.reloadreceiveuser
+    trigger:
+        set {twitter::*} to split {@twitterID} by ","
+        set {discord::*} to split {@discordID} by ","
+command /reconnectdiscord:
+    permission: report.reconnectdiscord
+    trigger:
+        login to user with token {@discordtoken} with name {@discordbotname}
