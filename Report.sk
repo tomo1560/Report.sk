@@ -45,8 +45,9 @@ command /report [<offlineplayer>] <string>:
                 set {_reportedplayer} to "none"
                 set {_reportedplayerip} to "none"
                 set {_reportedplayeruuid} to "none"
+                set {_reportedplayercoord} to "none"
                 set {_report} to arg-1
-            set {_message} to "報告サーバ : {@servername}%newline%報告日時 : %now%%newline%報告プレイヤー名 : %the player%%newline%報告プレイヤーUUID : %newline%%UUID of player%%newline%報告プレイヤーIP : %IP of player%%newline%報告プレイヤー位置 : %newline% - ワールド : %the player's world%%newline% - 座標 : %newline%X : %player's X-coordinate%%newline%Y : %player's Y-coordinate%%newline%Z : %player's Z-coordinate%%newline%このプレイヤーは本日%{reportedcounter::%player%} + 1%回目の報告です%newline%%newline%被報告プレイヤー名 : %{_reportedplayer}%%newline%被報告プレイヤーUUID : %newline%%{_reportedplayeruuid}%%newline%被報告プレイヤーIP : %{_reportedplayerip}%%newline%被報告プレイヤー位置 : %newline%%{_reportedplayercoord}%%newline%メッセージ : %{_report}%"
+            set {_message} to "報告がありました。%newline%このプレイヤーは本日1回目の報告です。%newline%%newline%サーバ : {@servername}%newline%日時 : %now%%newline%%newline%報告プレイヤー%newline%名前：%the player%%newline%UUID : %UUID of player%%newline%IP : %IP of player%%newline%位置 : %newline% - ワールド : %the player's world%%newline% - 座標 : %newline%X : %player's X-coordinate%%newline%Y : %player's Y-coordinate%%newline%Z : %player's Z-coordinate%%newline%%newline%報告対象プレイヤー%newline%名前 : %{_reportedplayer}%%newline%UUID : %{_reportedplayeruuid}%%newline%IP : %{_reportedplayerip}%%newline%位置 : %newline%%{_reportedplayercoord}%%newline%%newline%メッセージ : %{_report}%"
             set {_mcmessage::*} to split {_message} by "%newline%"
             send message "====================== [Report] ======================%newline%%{_message}%%newline%====================================================" to channel {@discordchannelID} as {@discordbotname}
             #loop {discord::*}:
